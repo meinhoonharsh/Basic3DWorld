@@ -1,6 +1,8 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js";
-
+import { FBXLoader } from "https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js";
+import BasicCharacterControls from "./BasicCharacterControls.js";
 
 // Functional Approach
 
@@ -27,7 +29,7 @@ const scene = new THREE.Scene();
 
 //  Setting Up Lights
 let light = new THREE.DirectionalLight(0xffffff, 1.0);
-light.position.set(20, 100, 10);
+light.position.set(20, 40, 20);
 light.target.position.set(0, 0, 0);
 light.castShadow = true;
 light.shadow.bias = -0.001;
@@ -44,7 +46,7 @@ light.shadow.camera.bottom = -100;
 scene.add(light);
 
 //   Adding an Ambient Light
-light = new THREE.AmbientLight(0x101010);
+light = new THREE.AmbientLight(0xf0f0f0);
 scene.add(light);
 
 // Setting Up Controls
@@ -55,18 +57,12 @@ controls.update();
 // Setting Up Skybox
 const loader = new THREE.CubeTextureLoader();
 const texture = loader.load([
-  "./resources/posx.jpg",
-  "./resources/negx.jpg",
-  "./resources/posy.jpg",
-  "./resources/negy.jpg",
-  "./resources/posz.jpg",
-  "./resources/negz.jpg",
-  // './resources/test/skyrender0001.bmp',
-  // './resources/test/skyrender0004.bmp',
-  // './resources/test/skyrender0003.bmp',
-  // './resources/test/skyrender0006.bmp',
-  // './resources/test/skyrender0005.bmp',
-  // './resources/test/skyrender0002.bmp',
+  "./resources/skybox/1/posx.jpg",
+  "./resources/skybox/1/negx.jpg",
+  "./resources/skybox/1/posy.jpg",
+  "./resources/skybox/1/negy.jpg",
+  "./resources/skybox/1/posz.jpg",
+  "./resources/skybox/1/negz.jpg",
 ]);
 scene.background = texture;
 
@@ -82,32 +78,38 @@ plane.receiveShadow = true;
 plane.rotation.x = -Math.PI / 2;
 scene.add(plane);
 
-// Function to Generate Random Hex Code of THREE.Color
-const randomHex = () => {
+let mixers = [];
+let previousRaf = null;
 
-    const color= "#" + Math.floor(Math.random() * 16777215).toString(16);
-    return color;
-}
+var characterControls;
 
-// Setting Up Boxes
-for (let x = -8; x < 8; x++) {
-  for (let y = -8; y < 8; y++) {
-    const box = new THREE.Mesh(
-      new THREE.BoxGeometry(2, 2, 2),
-      new THREE.MeshStandardMaterial({
-        color: randomHex(),
-      })
-    );
-    box.position.set(
-      Math.random() + x * 5,
-      Math.random() * 4.0 + 2.0,
-      Math.random() + y * 5
-    );
-    box.castShadow = true;
-    box.receiveShadow = true;
-    scene.add(box);
-  }
-}
+const LoadAnimatedModel = () => {
+  const loader = new FBXLoader();
+  loader.setPath("./resources/models/characters/school_boy/");
+  loader.load("body.fbx", (fbx) => {
+    fbx.scale.setScalar(0.1);
+    fbx.traverse((c) => {
+      c.castShadow = true;
+    });
+
+    const params = {
+      target: fbx,
+      camera: camera,
+    };
+
+    characterControls = new BasicCharacterControls(params);
+
+    const anim = new FBXLoader();
+    anim.setPath("./resources/models/characters/school_boy/");
+    anim.load("walk_inplace.fbx", (anim) => {
+      const m = new THREE.AnimationMixer(fbx);
+      mixers.push(m);
+      const idle = m.clipAction(anim.animations[0]);
+      idle.play();
+    });
+    scene.add(fbx);
+  });
+};
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
@@ -115,10 +117,27 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-const render = () => {
-  requestAnimationFrame(render);
-  // plane.rotation.x += 0.01;
-  renderer.render(scene, camera);
+const Step = (timeElapsed) => {
+  const timeElapsedS = timeElapsed * 0.001;
+  if (mixers.length > 0) {
+    mixers.forEach((mixer) => mixer.update(timeElapsedS));
+  }
+  if (characterControls) {
+    characterControls.Update(timeElapsedS);
+  }
 };
+const render = () => {
+  requestAnimationFrame((t) => {
+    if (previousRaf === null) {
+      previousRaf = t;
+    }
+    render();
 
+    renderer.render(scene, camera);
+    Step(t - previousRaf);
+    previousRaf = t;
+  });
+  // plane.rotation.x += 0.01;
+};
+LoadAnimatedModel();
 render();
