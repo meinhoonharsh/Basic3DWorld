@@ -185,12 +185,12 @@ class LoadModelDemo {
 
     const loader = new THREE.CubeTextureLoader();
     const texture = loader.load([
-        './resources/posx.jpg',
-        './resources/negx.jpg',
-        './resources/posy.jpg',
-        './resources/negy.jpg',
-        './resources/posz.jpg',
-        './resources/negz.jpg',
+      "./resources/skybox/1/posx.jpg",
+      "./resources/skybox/1/negx.jpg",
+      "./resources/skybox/1/posy.jpg",
+      "./resources/skybox/1/negy.jpg",
+      "./resources/skybox/1/posz.jpg",
+      "./resources/skybox/1/negz.jpg",
     ]);
     this._scene.background = texture;
 
