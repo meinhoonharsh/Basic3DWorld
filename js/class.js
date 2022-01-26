@@ -234,7 +234,7 @@ class LoadModelDemo {
 
       const anim = new FBXLoader();
       anim.setPath('./resources/models/characters/school_boy/');
-      anim.load('walk.fbx', (anim) => {
+      anim.load('walk_inplace.fbx', (anim) => {
         const m = new THREE.AnimationMixer(fbx);
         this._mixers.push(m);
         const idle = m.clipAction(anim.animations[0]);
