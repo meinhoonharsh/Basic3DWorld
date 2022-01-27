@@ -1,0 +1,11 @@
+Model Information:
+* title:	NTU Campus 台灣大學校園 2019
+* source:	https://sketchfab.com/3d-models/ntu-campus-2019-dca1b9bbfcbf44119525ca722c27febd
+* author:	iontuguanyan (https://sketchfab.com/iontuguanyan)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "NTU Campus 台灣大學校園 2019" (https://sketchfab.com/3d-models/ntu-campus-2019-dca1b9bbfcbf44119525ca722c27febd) by iontuguanyan (https://sketchfab.com/iontuguanyan) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
