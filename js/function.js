@@ -2,7 +2,7 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.118/build/three.mod
 import { FBXLoader } from "https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/GLTFLoader.js";
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js";
-import BasicCharacterControls from "./Controllers/BasicCharacterControls.js";
+import CharacterController from './Controllers/CharacterController.js';
 
 // Functional Approach
 
@@ -74,7 +74,12 @@ let previousRaf = null;
 var characterControls;
 
 const LoadAnimatedModel = () => {
-  
+  const params = {
+    camera: camera,
+    scene: scene,
+  }
+  characterControls = new CharacterController(params);
+
   const PLOTloader = new FBXLoader();
   PLOTloader.setPath("./resources/models/plots/");
   PLOTloader.load("city4.fbx", (fbx) => {
@@ -88,32 +93,6 @@ const LoadAnimatedModel = () => {
   
 
 
-  const loader = new FBXLoader();
-  loader.setPath("./resources/models/characters/body/");
-  loader.load("school_boy.fbx", (fbx) => {
-    fbx.scale.setScalar(0.1);
-    fbx.traverse((c) => {
-      c.castShadow = true;
-    });
-
-  
-    const params = {
-      target: fbx,
-      camera: camera,
-    };
-
-    characterControls = new BasicCharacterControls(params);
-
-    const anim = new FBXLoader();
-    anim.setPath("./resources/models/characters/animation/");
-    anim.load("walk_inplace.fbx", (anim) => {
-      const m = new THREE.AnimationMixer(fbx);
-      mixers.push(m);
-      const idle = m.clipAction(anim.animations[0]);
-      idle.play();
-    });
-    scene.add(fbx);
-  });
 };
 
 window.addEventListener("resize", () => {
@@ -121,7 +100,6 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
 const Step = (timeElapsed) => {
   const timeElapsedS = timeElapsed * 0.001;
   if (mixers.length > 0) {
