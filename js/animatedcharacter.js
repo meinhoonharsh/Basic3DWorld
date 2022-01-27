@@ -85,8 +85,8 @@ var characterControls;
 
 const LoadAnimatedModel = () => {
   const loader = new FBXLoader();
-  loader.setPath("./resources/models/characters/school_boy/");
-  loader.load("body.fbx", (fbx) => {
+  loader.setPath("./resources/models/characters/body/");
+  loader.load("school_boy.fbx", (fbx) => {
     fbx.scale.setScalar(0.1);
     fbx.traverse((c) => {
       c.castShadow = true;
@@ -100,7 +100,7 @@ const LoadAnimatedModel = () => {
     characterControls = new BasicCharacterControls(params);
 
     const anim = new FBXLoader();
-    anim.setPath("./resources/models/characters/school_boy/");
+    anim.setPath("./resources/models/characters/animation/");
     anim.load("walk_inplace.fbx", (anim) => {
       const m = new THREE.AnimationMixer(fbx);
       mixers.push(m);
