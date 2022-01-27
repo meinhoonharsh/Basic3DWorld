@@ -66,17 +66,7 @@ const texture = loader.load([
 ]);
 scene.background = texture;
 
-// Setting Up Plane
-const plane = new THREE.Mesh(
-  new THREE.PlaneGeometry(100, 100, 10, 10),
-  new THREE.MeshStandardMaterial({
-    color: 0x585897,
-  })
-);
-plane.castShadow = false;
-plane.receiveShadow = true;
-plane.rotation.x = -Math.PI / 2;
-scene.add(plane);
+
 
 let mixers = [];
 let previousRaf = null;
@@ -84,6 +74,20 @@ let previousRaf = null;
 var characterControls;
 
 const LoadAnimatedModel = () => {
+  
+  const PLOTloader = new FBXLoader();
+  PLOTloader.setPath("./resources/models/plots/");
+  PLOTloader.load("city4.fbx", (fbx) => {
+    fbx.traverse(function (child) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+    });
+    fbx.scale.setScalar(0.2);
+    scene.add(fbx);
+  });
+  
+
+
   const loader = new FBXLoader();
   loader.setPath("./resources/models/characters/school_boy/");
   loader.load("body.fbx", (fbx) => {
@@ -92,6 +96,7 @@ const LoadAnimatedModel = () => {
       c.castShadow = true;
     });
 
+  
     const params = {
       target: fbx,
       camera: camera,
