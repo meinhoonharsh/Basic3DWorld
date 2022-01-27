@@ -1,8 +1,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.118/build/three.module.js";
 import { FBXLoader } from "https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/GLTFLoader.js";
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js";
-import CharacterController from './Controllers/CharacterController.js';
+import CharacterController from './Controllers/TPPCharacterController.js';
+import ThirdPersonCamera from './Controllers/ThirdPersonCamera.js';
 
 // Functional Approach
 
@@ -49,10 +48,6 @@ scene.add(light);
 light = new THREE.AmbientLight(0xf0f0f0);
 scene.add(light);
 
-// Setting Up Controls
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 20, 0);
-controls.update();
 
 // Setting Up Skybox
 const loader = new THREE.CubeTextureLoader();
@@ -70,6 +65,7 @@ scene.background = texture;
 
 let mixers = [];
 let previousRaf = null;
+var tppCamera;
 
 var characterControls;
 
@@ -79,7 +75,11 @@ const LoadAnimatedModel = () => {
     scene: scene,
   }
   characterControls = new CharacterController(params);
-
+  
+  tppCamera = new ThirdPersonCamera({
+    camera: camera,
+    target: characterControls,
+  });
   const PLOTloader = new FBXLoader();
   PLOTloader.setPath("./resources/models/plots/");
   PLOTloader.load("city4.fbx", (fbx) => {
@@ -108,6 +108,7 @@ const Step = (timeElapsed) => {
   if (characterControls) {
     characterControls.Update(timeElapsedS);
   }
+    tppCamera.Update(timeElapsedS);
 };
 const render = () => {
   requestAnimationFrame((t) => {

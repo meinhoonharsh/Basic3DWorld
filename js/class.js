@@ -2,8 +2,50 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.118/build/three.mod
 
 import {FBXLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/FBXLoader.js';
 import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.118.1/examples/jsm/loaders/GLTFLoader.js';
-import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js';
-import CharacterController from './Controllers/CharacterController.js';
+
+import CharacterController from './Controllers/TPPCharacterController.js';
+
+
+
+
+class ThirdPersonCamera {
+  constructor(params) {
+    this._params = params;
+    this._camera = params.camera;
+
+    this._currentPosition = new THREE.Vector3();
+    this._currentLookat = new THREE.Vector3();
+  }
+
+  _CalculateIdealOffset() {
+    const idealOffset = new THREE.Vector3(-15, 20, -30);
+    idealOffset.applyQuaternion(this._params.target.Rotation);
+    idealOffset.add(this._params.target.Position);
+    return idealOffset;
+  }
+
+  _CalculateIdealLookat() {
+    const idealLookat = new THREE.Vector3(0, 10, 50);
+    idealLookat.applyQuaternion(this._params.target.Rotation);
+    idealLookat.add(this._params.target.Position);
+    return idealLookat;
+  }
+
+  Update(timeElapsed) {
+    const idealOffset = this._CalculateIdealOffset();
+    const idealLookat = this._CalculateIdealLookat();
+
+    // const t = 0.05;
+    // const t = 4.0 * timeElapsed;
+    const t = 1.0 - Math.pow(0.001, timeElapsed);
+
+    this._currentPosition.lerp(idealOffset, t);
+    this._currentLookat.lerp(idealLookat, t);
+
+    this._camera.position.copy(this._currentPosition);
+    this._camera.lookAt(this._currentLookat);
+  }
+}
 
 class CharacterControllerDemo {
   constructor() {
@@ -55,10 +97,6 @@ class CharacterControllerDemo {
     light = new THREE.AmbientLight(0xFFFFFF, 0.25);
     this._scene.add(light);
 
-    const controls = new OrbitControls(
-      this._camera, this._threejs.domElement);
-    controls.target.set(0, 10, 0);
-    controls.update();
 
     const loader = new THREE.CubeTextureLoader();
     const texture = loader.load([
@@ -95,6 +133,11 @@ class CharacterControllerDemo {
       scene: this._scene,
     }
     this._controls = new CharacterController(params);
+    
+    this._thirdPersonCamera = new ThirdPersonCamera({
+      camera: this._camera,
+      target: this._controls,
+    });
   }
 
   _LoadAnimatedModelAndPlay(path, modelFile, animFile, offset) {
@@ -158,6 +201,8 @@ class CharacterControllerDemo {
     if (this._controls) {
       this._controls.Update(timeElapsedS);
     }
+    
+    this._thirdPersonCamera.Update(timeElapsedS);
   }
 }
 
